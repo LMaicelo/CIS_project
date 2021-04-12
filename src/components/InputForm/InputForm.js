@@ -1,5 +1,7 @@
 import React, { useReducer, useState } from 'react';
 import './InputForm.css';
+import { Button } from '../App/App.elements';
+import { SubmitContainer } from './InputForm.elements';
 
 const formReducer = (state, event) => {
   if (event.reset) {
@@ -77,7 +79,7 @@ function InputForm() {
             </select>
           </label>
         </fieldset>
-        <button type="submit" disabled={submitting}>Submit</button>
+        <Button fontBig primary type="submit" disabled={submitting}>Submit</Button>
       </form>
     </div>
   )
