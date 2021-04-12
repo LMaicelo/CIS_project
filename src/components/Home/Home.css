@@ -1,0 +1,17 @@
+.home-container {
+    text-align: center;
+}
+
+.home-title {
+    padding: 70px 20px 0 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.home-subtitle {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
