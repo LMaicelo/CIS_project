@@ -70,7 +70,7 @@ function InputForm() {
             <p>Time Intervals</p>
             <select name="timeIntervals" onChange={handleChange} value={formData.timeIntervals || ''} >
               <option value="">--Please choose an option--</option>
-              <option value="day">Day</option>
+              <option value="day">Days</option>
               <option value="week">Week</option>
               <option value="month">Month</option>
               <option value="year">Year</option>
