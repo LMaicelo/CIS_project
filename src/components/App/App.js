@@ -9,7 +9,12 @@ function App() {
     <Router>
       <Switch>
         <Route path="/" exact component={Home} />
-        <Route path="/input-form" exact component={InputForm} />
+        <Route path="/product-form" render={(props) => (
+          <InputForm {...props} products={true} />
+        )} />
+        <Route path="/category-form" render={(props) => (
+          <InputForm {...props} products={false} />
+        )} />
       </Switch>
     </Router>
   );
