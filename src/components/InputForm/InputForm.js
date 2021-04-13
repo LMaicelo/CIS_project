@@ -27,9 +27,12 @@ function InputForm(props) {
   });
   const [submitting, setSubmitting] = useState(false);
 
+  const [submitted, setSubmitted] = useState(false);
+
   const handleSubmit = event => {
     event.preventDefault();
     setSubmitting(true);
+    setSubmitted(true);
     setTimeout(() => {
       setSubmitting(false);
       setFormData({
@@ -87,7 +90,7 @@ function InputForm(props) {
           <Button fontBig primary type="submit" disabled={submitting}>Submit</Button>
         </form>
       </div>
-      <Output />
+      {submitted && <Output />}
     </div>
   )
 }
