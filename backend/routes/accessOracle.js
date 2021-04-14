@@ -16,7 +16,7 @@ async function runQuery(query) {
     try {
         if (!oracleInit) {
             console.log("Starting db init");
-            oracledb.initOracleClient({ libDir: '/Users/rangerchenore/Downloads/instantclient_19_8' });
+            oracledb.initOracleClient({ libDir: '/Users/leona/Downloads/instantclient_19_10/instantclient_19_10' });
             console.log("Done db init");
             oracleInit = true;
         }

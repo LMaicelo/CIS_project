@@ -25,7 +25,8 @@ function InputForm(props) {
     timeIntervals: "",
     asinNumber: "",
     fullChartData: "",
-    apiResponse: ""
+    apiResponse: "",
+    list: null,
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -134,7 +135,7 @@ function InputForm(props) {
   // return [[title, asin], [title, asin], ...]
   async function getProductsLike(inputString) {
     let toReturn;
-    fetch(`http://localhost:9000/accessOracle/getProductAsins?inputTitle=${encodeURIComponent(inputString)}`)
+    await fetch(`http://localhost:9000/accessOracle/getProductAsins?inputTitle=${encodeURIComponent(inputString)}`)
       .then(res => res.text())
       .then((res) => {
         //console.log("Response is: " + res);
@@ -145,26 +146,33 @@ function InputForm(props) {
     return toReturn;
   }
 
+  async function handleClick(event) {
+    event.preventDefault();
+    let result = await getProductsLike(state.pName);
+    let res = JSON.parse(result);
+    setState({
+      list: [res[0][0] + " " + res[0][1], res[1][0] + " " + res[1][1], res[2][0] + " " + res[2][1], res[3][0] + " " + res[3][2], res[4][0] + " " + res[4][1]]
+    });
+  }
+
   return (
     <div className="wrapper">
       <div className="input-form">
         <h1>Please Fill Out the Following</h1>
-        {submitting &&
-          <div>
-            You are submitting the following:
-         <ul>
-              {Object.entries(state).map(([name, value]) => (
-                <li key={name}><strong>{name}</strong>: {value.toString()}</li>
-              ))}
-            </ul>
-          </div>
-        }
         <form onSubmit={handleSubmit}>
           <fieldset disabled={submitting}>
             {useProducts &&
               <label>
                 <p>Product Name</p>
                 <input name="pName" onChange={handleChange} value={state.pName} />
+                <Button fontBig primary onClick={handleClick}>Search</Button>
+                <div>
+                  <ul>
+                    {(state.list || []).map(item => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
               </label>
             }
             {useCategories &&
@@ -210,7 +218,7 @@ function InputForm(props) {
           <Button fontBig primary type="submit" disabled={submitting}>Submit</Button>
         </form>
       </div>
-      {dataReady && <Output fullChartData={JSON.parse(state.fullChartData)}/>}
+      {dataReady && <Output fullChartData={JSON.parse(state.fullChartData)} />}
     </div>
   )
 }
