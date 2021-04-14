@@ -20,10 +20,11 @@ class Output extends React.Component {
       this.callApi();
     }
     
+    // Fix chart input ************
     render() {
       return (
         <div className="Output">
-          <Chart label={this.state.chartLabel} dataCoords={this.state.dataCoords} yAxisLabel={this.state.yAxisLabel}/>
+          <Chart fullChartData={this.state.fullChartData}/>
         </div>
       )
     }

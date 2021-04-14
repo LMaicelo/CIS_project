@@ -4,7 +4,180 @@ import { Bar, Line, Pie, Scatter } from 'react-chartjs-2';
 class Chart extends Component {
     constructor(props) {
         super(props);
-        this.state = {
+        this.state = props.fullChartData;
+        // this.state = {
+        //     "chartData": {
+        //         "datasets": [
+        //             {
+        //                 "label": "ASS KICKIN",
+        //                 "showLine": true,
+        //                 "fill": false,
+        //                 "borderColor": "rgb(255, 99, 132)",
+        //                 "data": [
+        //                     {
+        //                         "x": 1366502400,
+        //                         "y": 4.2
+        //                     },
+        //                     {
+        //                         "x": 1398038400,
+        //                         "y": 4.6470588235294095
+        //                     },
+        //                     {
+        //                         "x": 1429574400,
+        //                         "y": 4.285714285714289
+        //                     },
+        //                     {
+        //                         "x": 1461110400,
+        //                         "y": 3.5
+        //                     },
+        //                     {
+        //                         "x": 1492646400,
+        //                         "y": 4
+        //                     }
+        //                 ],
+        //                 "backgroundColor": "rgb(255, 99, 132)"
+        //             },
+        //             {
+        //                 "label": "Bhut Kisser",
+        //                 "showLine": true,
+        //                 "fill": false,
+        //                 "borderColor": "rgb(255, 99, 132)",
+        //                 "data": [
+        //                     {
+        //                         "x": 1366502400,
+        //                         "y": 5
+        //                     },
+        //                     {
+        //                         "x": 1429574400,
+        //                         "y": 4
+        //                     },
+        //                     {
+        //                         "x": 1461110400,
+        //                         "y": 4
+        //                     },
+        //                     {
+        //                         "x": 1524182400,
+        //                         "y": 5
+        //                     }
+        //                 ],
+        //                 "backgroundColor": "rgb(255, 99, 132)"
+        //             },
+        //             {
+        //                 "label": "Blairs",
+        //                 "showLine": true,
+        //                 "fill": false,
+        //                 "borderColor": "rgb(255, 99, 132)",
+        //                 "data": [
+        //                     {
+        //                         "x": 1366502400,
+        //                         "y": 4.375
+        //                     },
+        //                     {
+        //                         "x": 1398038400,
+        //                         "y": 3
+        //                     },
+        //                     {
+        //                         "x": 1461110400,
+        //                         "y": 5
+        //                     },
+        //                     {
+        //                         "x": 1492646400,
+        //                         "y": 5
+        //                     }
+        //                 ],
+        //                 "backgroundColor": "rgb(255, 99, 132)"
+        //             },
+        //             {
+        //                 "label": "Bravado Spice",
+        //                 "showLine": true,
+        //                 "fill": false,
+        //                 "borderColor": "rgb(255, 99, 132)",
+        //                 "data": [
+        //                     {
+        //                         "x": 1429574400,
+        //                         "y": 2
+        //                     },
+        //                     {
+        //                         "x": 1461110400,
+        //                         "y": 2
+        //                     },
+        //                     {
+        //                         "x": 1492646400,
+        //                         "y": 4.15384615384615
+        //                     },
+        //                     {
+        //                         "x": 1524182400,
+        //                         "y": 5
+        //                     }
+        //                 ],
+        //                 "backgroundColor": "rgb(255, 99, 132)"
+        //             },
+        //             {
+        //                 "label": "CaJohns",
+        //                 "showLine": true,
+        //                 "fill": false,
+        //                 "borderColor": "rgb(255, 99, 132)",
+        //                 "data": [
+        //                     {
+        //                         "x": 1366502400,
+        //                         "y": 5
+        //                     },
+        //                     {
+        //                         "x": 1398038400,
+        //                         "y": 3
+        //                     },
+        //                     {
+        //                         "x": 1429574400,
+        //                         "y": 5
+        //                     },
+        //                     {
+        //                         "x": 1461110400,
+        //                         "y": 5
+        //                     },
+        //                     {
+        //                         "x": 1492646400,
+        //                         "y": 4.66666666666667
+        //                     }
+        //                 ],
+        //                 "backgroundColor": "rgb(255, 99, 132)"
+        //             },
+        //             {
+        //                 "label": "CaJohns Fiery Foods",
+        //                 "showLine": true,
+        //                 "fill": false,
+        //                 "borderColor": "rgb(255, 99, 132)",
+        //                 "data": [
+        //                     {
+        //                         "x": 1366502400,
+        //                         "y": 4.82222222222222
+        //                     }
+        //                 ],
+        //                 "backgroundColor": "rgb(255, 99, 132)"
+        //             }
+        //         ]
+        //     },
+        //     "chartOptions": {
+        //         "scales": {
+        //             "yAxes": [
+        //                 {
+        //                     "scaleLabel": {
+        //                         "display": true,
+        //                         "labelString": "Average Review Rating"
+        //                     }
+        //                 }
+        //             ],
+        //             "xAxes": [
+        //                 {
+        //                     "scaleLabel": {
+        //                         "display": true,
+        //                         "labelString": "Time"
+        //                     }
+        //                 }
+        //             ]
+        //         }
+        //     }
+        // }
+        /*this.state = {
             chartData: {
                 datasets: [
                     {
@@ -33,7 +206,7 @@ class Chart extends Component {
                       }]
                 }
             }
-        }
+        }*/
         // this.state = {
         //     chartData: {
         //         labels: props.labels,
