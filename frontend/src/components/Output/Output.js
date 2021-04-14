@@ -7,6 +7,18 @@ class Output extends React.Component {
       super(props);
       this.state = { chartLabel: "defaultLable", yAxisLabel: "Avg Rating", dataCoords: [{x:1, y: 2}, {x:3, y: 8}] };
     }
+
+    callApi() {
+      fetch("http://localhost:9000/accessOracle")
+        .then(res => res.text())
+        .then((res) => {
+          console.log("Response is: " + res);
+        });
+    }
+  
+    componentDidMount() {
+      this.callApi();
+    }
     
     render() {
       return (

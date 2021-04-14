@@ -3,6 +3,8 @@ import './InputForm.css';
 import { Button } from '../App/App.elements';
 import { SubmitContainer } from './InputForm.elements';
 import Output from '../Output/Output';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const formReducer = (state, event) => {
   if (event.reset) {
@@ -10,6 +12,10 @@ const formReducer = (state, event) => {
       name: '',
       timeFrame: '',
       timeIntervals: '',
+      asinNumber: '',
+      brandName: '',
+      startDate: '',
+      endDate: '',
     }
   }
   return {
@@ -19,6 +25,10 @@ const formReducer = (state, event) => {
 }
 
 function InputForm(props) {
+
+  const [startDate, setStartDate] = useState(new Date());
+
+  const [endDate, setEndDate] = useState(new Date());
 
   const useProducts = props.products;
 
@@ -71,8 +81,22 @@ function InputForm(props) {
           </fieldset>
           <fieldset disabled={submitting}>
             <label>
+              <p>ASIN Number</p>
+              <input name="asinNumber" onChange={handleChange} value={formData.asinNumber || ''} />
+            </label>
+          </fieldset>
+          <fieldset disabled={submitting}>
+            <label>
+              <p>Brand Name</p>
+              <input name="brandName" onChange={handleChange} value={formData.brandName || ''} />
+            </label>
+          </fieldset>
+          <fieldset disabled={submitting}>
+            <label>
               <p>Time Frame</p>
               <input name="timeFrame" onChange={handleChange} value={formData.timeFrame || ''} />
+              <DatePicker selected={startDate} onChange={date => setStartDate(date)} />
+              <DatePicker selected={endDate} onChange={date => setEndDate(date)} />
             </label>
           </fieldset>
           <fieldset disabled={submitting}>
