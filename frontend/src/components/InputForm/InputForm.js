@@ -22,6 +22,7 @@ function InputForm(props) {
     pName: "",
     cName: "",
     bName: "",
+    percentCat: "",
     timeIntervals: "",
     asinNumber: "",
     fullChartData: "",
@@ -54,28 +55,30 @@ function InputForm(props) {
   }
 
   const handleSubmit = event => {
+    console.log("submit once");
     event.preventDefault();
     setSubmitting(true);
     setSubmitted(true);
     if (useProducts) {
       executeQuery_brandForRelatedProducts(startDate.getTime() / 1000 | 0, endDate.getTime() / 1000 | 0, convertTimeInterval(state.timeIntervals), state.asinNumber);
     } else if (useCategories) {
-      executeQuery_getTimeDiffCategory(startDate.getTime() / 1000 | 0, endDate.getTime() / 1000 | 0, convertTimeInterval(state.timeIntervals), state.cName);
+      executeQuery_getTimeDiffCategory(startDate.getTime() / 1000 | 0, endDate.getTime() / 1000 | 0, convertTimeInterval(state.timeIntervals), state.cName, state.percentCat);
     } else if (useBrands) {
       executeQuery_getRelativeRatingBrand(startDate.getTime() / 1000 | 0, endDate.getTime() / 1000 | 0, convertTimeInterval(state.timeIntervals), state.bName);
     }
-    // setTimeout(() => {
-    //   setSubmitting(false);
-    //   setState({
-    //     pName: "",
-    //     cName: "",
-    //     bName: "",
-    //     timeIntervals: "",
-    //     asinNumber: "",
-    //     fullChartData: "",
-    //     apiResponse: ""
-    //   });
-    // }, 5000);
+    setTimeout(() => {
+      setSubmitting(false);
+      // setState({
+      //   pName: "",
+      //   cName: "",
+      //   bName: "",
+      //   percentCat: "",
+      //   timeIntervals: "",
+      //   asinNumber: "",
+      //   fullChartData: "",
+      //   apiResponse: ""
+      // });
+    }, 3000);
   }
 
   const handleChange = event => {
@@ -102,9 +105,9 @@ function InputForm(props) {
     return toReturn;
   }
 
-  async function executeQuery_getTimeDiffCategory(startTime, endTime, timeInterval, catName) {
+  async function executeQuery_getTimeDiffCategory(startTime, endTime, timeInterval, catName, percentCat) {
     let toReturn;
-    fetch(`http://localhost:9000/accessOracle/getTimeDiffCategory?startTime=${startTime}&endTime=${endTime}&timeInterval=${timeInterval}&catName=${catName}`)
+    fetch(`http://localhost:9000/accessOracle/getTimeDiffCategory?startTime=${startTime}&endTime=${endTime}&timeInterval=${timeInterval}&catName=${catName}&percentCat=${percentCat}`)
       .then(res => res.text())
       .then((res) => {
         //console.log("Response is: " + res);
@@ -151,7 +154,7 @@ function InputForm(props) {
     let result = await getProductsLike(state.pName);
     let res = JSON.parse(result);
     setState({
-      list: [res[0][0] + " " + res[0][1], res[1][0] + " " + res[1][1], res[2][0] + " " + res[2][1], res[3][0] + " " + res[3][2], res[4][0] + " " + res[4][1]]
+      list: ["(" + res[0][0] + ") " + res[0][1], "(" + res[1][0] + ") " + res[1][1], "(" + res[2][0] + ") " + res[2][1], "(" + res[3][0] + ") " + res[3][1], "(" + res[4][0] + ") " + res[4][1]]
     });
   }
 
@@ -159,6 +162,15 @@ function InputForm(props) {
     <div className="wrapper">
       <div className="input-form">
         <h1>Please Fill Out the Following</h1>
+            {useCategories &&
+                <p>This query gathers companies who have over X percent of their products in the given category and compares their growth over time.</p>
+            }
+            {useProducts &&
+                <p>This query finds the companies that sell the best "ecosystem" for the given product and compares them by average product rating. That is, the query compares companies that sell products that are commonly bought with the given product.</p>
+            }
+            {useBrands &&
+                <p>This query calculates people's "unbiased" ratings on products. Bias is removed by dividing the review score by each reviewer's typical given rating to give a "proprtion above the typical rating" score.</p>
+            }
         <form onSubmit={handleSubmit}>
           <fieldset disabled={submitting}>
             {useProducts &&
@@ -179,6 +191,12 @@ function InputForm(props) {
               <label>
                 <p>Category Name</p>
                 <input name="cName" onChange={handleChange} value={state.cName} />
+              </label>
+            }
+            {useCategories &&
+              <label>
+                <p>Percent of Products in Category</p>
+                <input name="percentCat" onChange={handleChange} value={state.percentCat} />
               </label>
             }
             {useBrands &&

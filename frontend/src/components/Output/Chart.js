@@ -5,7 +5,21 @@ class Chart extends Component {
     constructor(props) {
         super(props);
         console.log("FullChartData is: " + props.fullChartData);
-        this.state = props.fullChartData;
+        let fcd = props.fullChartData;
+        fcd.chartOptions.scales.xAxes = [{
+            "ticks": {
+                "userCallback": function(item, index) {
+                    const dObj = new Date(item*1000);
+                    return dObj.toLocaleString().split(',')[0];
+                }
+            },
+                "scaleLabel": {
+                    "display": true,
+                    "labelString": "Time"
+                }
+            }
+        ];
+        this.state = fcd;
         // this.state = {
         //     chartData: {
         //         datasets: [

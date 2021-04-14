@@ -16,7 +16,7 @@ async function runQuery(query) {
     try {
         if (!oracleInit) {
             console.log("Starting db init");
-            oracledb.initOracleClient({ libDir: '/Users/leona/Downloads/instantclient_19_10/instantclient_19_10' });
+            oracledb.initOracleClient({ libDir: '/Users/rangerchenore/Downloads/instantclient_19_8' });
             console.log("Done db init");
             oracleInit = true;
         }
@@ -96,7 +96,7 @@ async function getRelativeRatingBrand(startTime, endTime, interval, brandName) {
 }
 
 
-async function getTimeDiffCategory(startTime, endTime, interval, categoryName) {
+async function getTimeDiffCategory(startTime, endTime, interval, categoryName, percentCat) {
     let caseString = generateCaseString(startTime, endTime, interval);
     let fullQuery = 
     `
@@ -136,7 +136,7 @@ async function getTimeDiffCategory(startTime, endTime, interval, categoryName) {
                         ORDER BY bb.brand DESC, COUNT(*) DESC)
                     WHERE
                         catName = '${categoryName}' AND
-                        percent >= 10
+                        percent >= ${percentCat}
                     )
                 ) TTT
         GROUP BY TTT.TimeInterval, brand
@@ -227,7 +227,7 @@ function toChartData_bestBrandsToGetRelatedProducts(resultRows) {
         backgroundColor: 'rgb(255, 99, 132)'
     }
 
-    let maxCount = 5;
+    let maxCount = 3;
     let curIndex = 0;
     let prevBrand = "";
     resultRows.some((elem) => { // like forEach, but can be exited
@@ -268,7 +268,7 @@ function toChartData_getTimeDiffCategory(resultRows) {
                 yAxes: [{
                     scaleLabel: {
                       display: true,
-                      labelString: "Difference From Previous Time Period's Average Rating"
+                      labelString: "Difference From Previous Time Period's Review Count"
                     }
                   }],
                 xAxes: [{
@@ -300,7 +300,9 @@ function toChartData_getTimeDiffCategory(resultRows) {
         let brand = elem[0];
         let ti = elem[1]; // time interval; x value
         let avgOverall = elem[2]; // y value
+        let shouldSkip = false;
         if (brand != prevBrand) {
+            shouldSkip = true;
             prevBrand = brand;
             if (curDataset.data.length > 0) {
                 fullChartData.chartData.datasets.push(JSON.parse(JSON.stringify(curDataset)));
@@ -312,7 +314,8 @@ function toChartData_getTimeDiffCategory(resultRows) {
             curDataset.borderColor = c;
             curDataset.backgroundColor = c;
         }
-        curDataset.data.push({x: ti, y: avgOverall});
+        if (!shouldSkip)
+            curDataset.data.push({x: ti, y: avgOverall});
     });
     if (curDataset.data.length > 0)
         fullChartData.chartData.datasets.push(JSON.parse(JSON.stringify(curDataset)));
@@ -424,9 +427,11 @@ router.get("/getTimeDiffCategory", async function (req, res, next) {
     let startTime = parseInt(req.query.startTime);
     let endTime = parseInt(req.query.endTime);
     let timeInterval = parseInt(req.query.timeInterval);
+    let percentCat = parseInt(req.query.percentCat);
+    console.log("Percent cat = " + percentCat);
 
     //let resultRows = await getTimeDiffCategory(1366502400, 1555718400, 31536000, catName);
-    let resultRows = await getTimeDiffCategory(startTime, endTime, timeInterval, catName);
+    let resultRows = await getTimeDiffCategory(startTime, endTime, timeInterval, catName, percentCat);
     let fullChartData = toChartData_getTimeDiffCategory(resultRows);
     console.log(JSON.stringify(fullChartData, null, 4));
     res.send(JSON.stringify(fullChartData));
@@ -435,15 +440,21 @@ router.get("/getTimeDiffCategory", async function (req, res, next) {
 router.get("/getProductAsins", async function (req, res, next) {
     let inputTitle = req.query.inputTitle;
     //console.log("inputTitle is: " + inputTitle);
-    let resultRows = await runQuery(`SELECT asin, title FROM AM_Product WHERE title LIKE '%${inputTitle}%' FETCH FIRST 5 ROWS ONLY`);
+    let resultRows = await runQuery(`
+        SELECT asin, title
+        FROM AM_Product NATURAL JOIN AM_Also_Buy
+        WHERE title LIKE '%${inputTitle}%'
+        GROUP BY title, asin
+        ORDER BY COUNT(*) DESC
+        FETCH FIRST 5 ROWS ONLY`);
 
     res.send(resultRows);
 });
 
 module.exports = router;
 
-let test = { "chartData": 
-{ "datasets": [{ "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1366502400, "y": 4.2 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1398038400, "y": 4.6470588235294095 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1429574400, "y": 4.285714285714289 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1461110400, "y": 3.5 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1492646400, "y": 4 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "Bhut Kisser", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1366502400, "y": 5 }], "backgroundColor": "rgb(255, 99, 132)" }] }, "chartOptions": { "scales": { "yAxes": [{ "scaleLabel": { "display": true, "labelString": "Average Review Rating" } }], "xAxes": [{ "scaleLabel": { "display": true, "labelString": "Time" } }] } } }
+// let test = { "chartData": 
+//{ "datasets": [{ "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1366502400, "y": 4.2 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1398038400, "y": 4.6470588235294095 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1429574400, "y": 4.285714285714289 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1461110400, "y": 3.5 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1492646400, "y": 4 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "Bhut Kisser", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1366502400, "y": 5 }], "backgroundColor": "rgb(255, 99, 132)" }] }, "chartOptions": { "scales": { "yAxes": [{ "scaleLabel": { "display": true, "labelString": "Average Review Rating" } }], "xAxes": [{ "scaleLabel": { "display": true, "labelString": "Time" } }] } } }
 
 /* (Example query (getRelativeRatingBrand))
 

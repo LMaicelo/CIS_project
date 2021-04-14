@@ -8,18 +8,6 @@ class Output extends React.Component {
       console.log("Full chart data in OUTPUT is: " + props.fullChartData);
       this.state = props.fullChartData;
     }
-
-    callApi() {
-      fetch("http://localhost:9000/accessOracle")
-        .then(res => res.text())
-        .then((res) => {
-          console.log("Response is: " + res);
-        });
-    }
-  
-    componentDidMount() {
-      this.callApi();
-    }
     
     render() {
       return (
