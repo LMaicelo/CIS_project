@@ -119,6 +119,18 @@ function InputForm(props) {
     return toReturn;
   }
 
+  async function getProductsLike(inputString) {
+    let toReturn;
+    fetch(`http://localhost:9000/accessOracle/getProductAsins?inputTitle=${encodeURIComponent(inputString)}`)
+      .then(res => res.text())
+      .then((res) => {
+        //console.log("Response is: " + res);
+        this.setState({ apiResponse: res });
+        toReturn = res;
+        return res;
+      });
+    return toReturn;
+  }
 
   return (
     <div className="wrapper">
