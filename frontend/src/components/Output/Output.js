@@ -5,7 +5,8 @@ import './Output.css';
 class Output extends React.Component {
     constructor(props) {
       super(props);
-      this.state = { chartLabel: "defaultLable", yAxisLabel: "Avg Rating", dataCoords: [{x:1, y: 2}, {x:3, y: 8}] };
+      console.log("Full chart data in OUTPUT is: " + props.fullChartData);
+      this.state = props.fullChartData;
     }
 
     callApi() {
@@ -23,7 +24,7 @@ class Output extends React.Component {
     render() {
       return (
         <div className="Output">
-          <Chart label={this.state.chartLabel} dataCoords={this.state.dataCoords} yAxisLabel={this.state.yAxisLabel}/>
+          <Chart fullChartData={this.state}/>
         </div>
       )
     }

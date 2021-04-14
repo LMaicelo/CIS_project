@@ -4,6 +4,10 @@ const oracledb = require('oracledb');
 
 let oracleInit = false;
 
+function generateRandomColor() {
+    return (`rgb(${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)})`);
+}
+
 async function runQuery(query) {
     const startTime = Date.now();
 
@@ -12,7 +16,7 @@ async function runQuery(query) {
     try {
         if (!oracleInit) {
             console.log("Starting db init");
-            oracledb.initOracleClient({ libDir: '/Users/leona/Downloads/instantclient_19_10/instantclient_19_10' });
+            oracledb.initOracleClient({ libDir: '/Users/rangerchenore/Downloads/instantclient_19_8' });
             console.log("Done db init");
             oracleInit = true;
         }
@@ -26,11 +30,11 @@ async function runQuery(query) {
             password: 'Hacking4Nothingora',
             connectString: '(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = oracle.cise.ufl.edu)(PORT = 1521))(CONNECT_DATA = (SID = orcl)))'
         });
-
+    
         console.log("execute");
         resultRows = (await conn.execute(query)).rows;
         console.log("done execute");
-        console.log(resultRows);
+        //console.log(resultRows);
     } catch (err) {
         console.error('Whoops1!');
         console.error(err);
@@ -55,8 +59,8 @@ async function runQuery(query) {
 
 async function getRelativeRatingBrand(startTime, endTime, interval, brandName) {
     let caseString = generateCaseString(startTime, endTime, interval);
-    let fullQuery =
-        `
+    let fullQuery = 
+    `
     SElECT TTT.TimeInterval, AVG(TTT.unbiasedScore) as avgubs
     FROM
         (SELECT 
@@ -94,8 +98,8 @@ async function getRelativeRatingBrand(startTime, endTime, interval, brandName) {
 
 async function getTimeDiffCategory(startTime, endTime, interval, categoryName) {
     let caseString = generateCaseString(startTime, endTime, interval);
-    let fullQuery =
-        `
+    let fullQuery = 
+    `
     SELECT brand, TimeInterval, TimeDiff
     FROM
     (SELECT brand, TimeInterval, amt, amt - (Lag(amt, 1) OVER (ORDER BY Brand, TimeInterval ASC)) AS TimeDiff
@@ -148,8 +152,8 @@ async function getTimeDiffCategory(startTime, endTime, interval, categoryName) {
 
 async function bestBrandsToGetRelatedProducts(startTime, endTime, interval, productAsin) {
     let caseString = generateCaseString(startTime, endTime, interval);
-    let fullQuery =
-        `
+    let fullQuery = 
+    `
     SELECT brand, TimeInterval, AVG(curAVG) AS avgOverall, NumRelatedProducts
     FROM
         (SELECT brand, asin, TimeInterval, AVG(overall) as curAVG
@@ -184,14 +188,14 @@ async function bestBrandsToGetRelatedProducts(startTime, endTime, interval, prod
             GROUP BY brand, asin)
         GROUP BY brand)
     GROUP BY brand, TimeInterval, NumRelatedProducts
-    ORDER BY brand
+    ORDER BY NumRelatedProducts DESC, brand, TimeInterval
     `;
     let resultRows = await runQuery(fullQuery);
     return resultRows;
 }
 
 function toChartData_bestBrandsToGetRelatedProducts(resultRows) {
-    let fullChartData =
+    let fullChartData = 
     {
         chartData: {
             datasets: [],
@@ -200,16 +204,16 @@ function toChartData_bestBrandsToGetRelatedProducts(resultRows) {
             scales: {
                 yAxes: [{
                     scaleLabel: {
-                        display: true,
-                        labelString: "Average Review Rating"
+                      display: true,
+                      labelString: "Average Review Rating"
                     }
-                }],
+                  }],
                 xAxes: [{
                     scaleLabel: {
-                        display: true,
-                        labelString: "Time"
+                      display: true,
+                      labelString: "Time"
                     }
-                }]
+                  }]
             }
         }
     }
@@ -241,17 +245,20 @@ function toChartData_bestBrandsToGetRelatedProducts(resultRows) {
             }
             curDataset.label = brand;
             curDataset.data = [];
+            let c = generateRandomColor();
+            curDataset.borderColor = c;
+            curDataset.backgroundColor = c;
         }
-        curDataset.data.push({ x: ti, y: avgOverall });
+        curDataset.data.push({x: ti, y: avgOverall});
     });
     if (curDataset.data.length > 0)
         fullChartData.chartData.datasets.push(JSON.parse(JSON.stringify(curDataset)));
-
+    
     return fullChartData;
 }
 
 function toChartData_getTimeDiffCategory(resultRows) {
-    let fullChartData =
+    let fullChartData = 
     {
         chartData: {
             datasets: [],
@@ -260,16 +267,16 @@ function toChartData_getTimeDiffCategory(resultRows) {
             scales: {
                 yAxes: [{
                     scaleLabel: {
-                        display: true,
-                        labelString: "Difference From Previous Time Period's Average Rating"
+                      display: true,
+                      labelString: "Difference From Previous Time Period's Average Rating"
                     }
-                }],
+                  }],
                 xAxes: [{
                     scaleLabel: {
-                        display: true,
-                        labelString: "Time"
+                      display: true,
+                      labelString: "Time"
                     }
-                }]
+                  }]
             }
         }
     }
@@ -301,42 +308,45 @@ function toChartData_getTimeDiffCategory(resultRows) {
             }
             curDataset.label = brand;
             curDataset.data = [];
+            let c = generateRandomColor();
+            curDataset.borderColor = c;
+            curDataset.backgroundColor = c;
         }
-        curDataset.data.push({ x: ti, y: avgOverall });
+        curDataset.data.push({x: ti, y: avgOverall});
     });
     if (curDataset.data.length > 0)
         fullChartData.chartData.datasets.push(JSON.parse(JSON.stringify(curDataset)));
-
+    
     return fullChartData;
 }
 
 function toChartData_getRelativeRatingBrand(resultRows, brandName) {
-    let fullChartData =
+    let fullChartData = 
     {
         chartData: {
-            datasets: {
+            datasets: [{
                 label: brandName,
                 showLine: true,
                 fill: false,
                 borderColor: 'rgb(255, 99, 132)',
                 data: [],
                 backgroundColor: 'rgb(255, 99, 132)'
-            },
+            }],
         },
         chartOptions: {
             scales: {
                 yAxes: [{
                     scaleLabel: {
-                        display: true,
-                        labelString: "Average 'Unbiased' Rating"
+                      display: true,
+                      labelString: "Average 'Unbiased' Rating"
                     }
-                }],
+                  }],
                 xAxes: [{
                     scaleLabel: {
-                        display: true,
-                        labelString: "Time"
+                      display: true,
+                      labelString: "Time"
                     }
-                }]
+                  }]
             }
         }
     }
@@ -346,9 +356,9 @@ function toChartData_getRelativeRatingBrand(resultRows, brandName) {
         let ti = elem[0]; // time interval; x value
         let avgOverall = elem[1]; // y value
 
-        fullChartData.chartData.datasets.data.push({ x: ti, y: avgOverall });
+        fullChartData.chartData.datasets[0].data.push({x: ti, y: avgOverall});
     });
-
+    
     return fullChartData;
 }
 
@@ -371,7 +381,9 @@ function generateCaseString(startTime, endTime, interval) {
 router.get("/", async function (req, res, next) {
     //res.send("API is working");
 
-    let resultRows = await runQuery("SELECT prod.title, price.price FROM AM_PRODUCT prod, AM_PRICE price WHERE prod.asin = price.asin AND price.price >= 500");
+    //let resultRows = await bestBrandsToGetRelatedProducts(1366502400, 1555718400, 31536000, 'B00PZ4YAD4');
+    let resultRows = await getTimeDiffCategory(1366502400, 1555718400, 31536000, 'Beans');
+    //let resultRows = await getRelativeRatingBrand(1366502400, 1555718400, 31536000, 'Goya');
 
     res.send(resultRows);
 });
@@ -430,18 +442,18 @@ router.get("/getProductAsins", async function (req, res, next) {
 
 module.exports = router;
 
-let test = {
-    "chartData":
-        { "datasets": [{ "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1366502400, "y": 4.2 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1398038400, "y": 4.6470588235294095 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1429574400, "y": 4.285714285714289 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1461110400, "y": 3.5 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1492646400, "y": 4 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "Bhut Kisser", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1366502400, "y": 5 }], "backgroundColor": "rgb(255, 99, 132)" }] }, "chartOptions": { "scales": { "yAxes": [{ "scaleLabel": { "display": true, "labelString": "Average Review Rating" } }], "xAxes": [{ "scaleLabel": { "display": true, "labelString": "Time" } }] } }
-}
+let test = { "chartData": 
+{ "datasets": [{ "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1366502400, "y": 4.2 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1398038400, "y": 4.6470588235294095 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1429574400, "y": 4.285714285714289 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1461110400, "y": 3.5 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "ASS KICKIN", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1492646400, "y": 4 }], "backgroundColor": "rgb(255, 99, 132)" }, { "label": "Bhut Kisser", "showLine": true, "fill": false, "borderColor": "rgb(255, 99, 132)", "data": [{ "x": 1366502400, "y": 5 }], "backgroundColor": "rgb(255, 99, 132)" }] }, "chartOptions": { "scales": { "yAxes": [{ "scaleLabel": { "display": true, "labelString": "Average Review Rating" } }], "xAxes": [{ "scaleLabel": { "display": true, "labelString": "Time" } }] } } }
 
 /* (Example query (getRelativeRatingBrand))
+
+
 SElECT TTT.TimeInterval, AVG(TTT.unbiasedScore) as avgubs
 FROM
-    (SELECT
-        rid,
-        x2.overall/avgRating AS unbiasedScore,
-        x2.unix_time,
+    (SELECT 
+        rid, 
+        x2.overall/avgRating AS unbiasedScore, 
+        x2.unix_time,     
         (CASE
             WHEN unix_time >= 1366502400 AND unix_time < 1398038400 THEN 'Year -1'
             WHEN unix_time >= 1398038400 AND unix_time < 1429574400 THEN 'Year 0'
@@ -455,7 +467,7 @@ FROM
         FROM
             (SELECT reviewerID
             FROM AM_REVIEW NATURAL JOIN AM_Brand
-            WHERE
+            WHERE 
                 brand='Goya'
             ) r1,
             AM_REVIEW r2
@@ -470,4 +482,6 @@ FROM
 WHERE TTT.TimeInterval IS NOT NULL
 GROUP BY TTT.TimeInterval
 ORDER BY TTT.TimeInterval;
+
+
 */

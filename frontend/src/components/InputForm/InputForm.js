@@ -23,24 +23,31 @@ function InputForm(props) {
     cName: "",
     bName: "",
     timeIntervals: "",
-    asinNumber: ""
+    asinNumber: "",
+    fullChartData: "",
+    apiResponse: ""
   });
 
   const [submitting, setSubmitting] = useState(false);
 
   const [submitted, setSubmitted] = useState(false);
 
+  const [dataReady, setDataReady] = useState(false);
+
   function convertTimeInterval(timeInterval) {
-    if (timeInterval == "Day") {
+    if (timeInterval == "day") {
       return 86400;
     }
-    else if (timeInterval == "Week") {
+    else if (timeInterval == "week") {
       return 604800;
     }
-    else if (timeInterval == "Month") {
+    else if (timeInterval == "month") {
       return 2629743;
     }
-    else if (timeInterval == "Year") {
+    else if (timeInterval == "year") {
+      return 31556926;
+    }
+    else {
       return 31556926;
     }
   }
@@ -56,16 +63,18 @@ function InputForm(props) {
     } else if (useBrands) {
       executeQuery_getRelativeRatingBrand(startDate.getTime() / 1000 | 0, endDate.getTime() / 1000 | 0, convertTimeInterval(state.timeIntervals), state.bName);
     }
-    setTimeout(() => {
-      setSubmitting(false);
-      setState({
-        pName: "",
-        cName: "",
-        bName: "",
-        timeIntervals: "",
-        asinNumber: ""
-      })
-    }, 3000)
+    // setTimeout(() => {
+    //   setSubmitting(false);
+    //   setState({
+    //     pName: "",
+    //     cName: "",
+    //     bName: "",
+    //     timeIntervals: "",
+    //     asinNumber: "",
+    //     fullChartData: "",
+    //     apiResponse: ""
+    //   });
+    // }, 5000);
   }
 
   const handleChange = event => {
@@ -84,7 +93,8 @@ function InputForm(props) {
         //console.log("Response is: " + res);
         console.log("Response is: " + JSON.stringify(JSON.parse(res).chartData));
         console.log("Full val is: " + res);
-        this.setState({ fullChartData: res });
+        setState({ fullChartData: res });
+        setDataReady(true);
         toReturn = res;
         return res;
       });
@@ -98,7 +108,8 @@ function InputForm(props) {
       .then((res) => {
         //console.log("Response is: " + res);
         console.log("Response is: " + JSON.stringify(JSON.parse(res).chartData));
-        this.setState({ fullChartData: res });
+        setState({ fullChartData: res })
+        setDataReady(true);
         toReturn = res;
         return res;
       });
@@ -112,20 +123,22 @@ function InputForm(props) {
       .then((res) => {
         //console.log("Response is: " + res);
         console.log("Response is: " + JSON.stringify(JSON.parse(res).chartData));
-        this.setState({ fullChartData: res });
+        setState({ fullChartData: res });
+        setDataReady(true);
         toReturn = res;
         return res;
       });
     return toReturn;
   }
 
+  // return [[title, asin], [title, asin], ...]
   async function getProductsLike(inputString) {
     let toReturn;
     fetch(`http://localhost:9000/accessOracle/getProductAsins?inputTitle=${encodeURIComponent(inputString)}`)
       .then(res => res.text())
       .then((res) => {
         //console.log("Response is: " + res);
-        this.setState({ apiResponse: res });
+        setState({ apiResponse: res });
         toReturn = res;
         return res;
       });
@@ -197,9 +210,10 @@ function InputForm(props) {
           <Button fontBig primary type="submit" disabled={submitting}>Submit</Button>
         </form>
       </div>
-      {submitted && <Output />}
+      {dataReady && <Output fullChartData={JSON.parse(state.fullChartData)}/>}
     </div>
   )
 }
 
 export default InputForm;
+
