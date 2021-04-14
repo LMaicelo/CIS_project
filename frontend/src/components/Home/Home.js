@@ -15,6 +15,10 @@ const Home = () => {
                 <Button fontBig primary>CATEGORY</Button>
             </ButtonLink>
 
+            <ButtonLink to="/brand-form">
+                <Button fontBig primary>BRAND</Button>
+            </ButtonLink>
+
         </div>
     )
 }

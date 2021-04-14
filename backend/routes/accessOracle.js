@@ -26,7 +26,7 @@ async function runQuery(query) {
             password: 'Hacking4Nothingora',
             connectString: '(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = oracle.cise.ufl.edu)(PORT = 1521))(CONNECT_DATA = (SID = orcl)))'
         });
-    
+
         console.log("execute");
         resultRows = (await conn.execute(query)).rows;
         console.log("done execute");
@@ -345,7 +345,6 @@ function toChartData_getRelativeRatingBrand(resultRows, brandName) {
 
         let ti = elem[0]; // time interval; x value
         let avgOverall = elem[1]; // y value
-
         fullChartData.chartData.datasets.data.push({x: ti, y: avgOverall});
     });
     
@@ -443,7 +442,7 @@ FROM
     (SELECT 
         rid, 
         x2.overall/avgRating AS unbiasedScore, 
-        x2.unix_time,     
+        x2.unix_time,
         (CASE
             WHEN unix_time >= 1366502400 AND unix_time < 1398038400 THEN 'Year -1'
             WHEN unix_time >= 1398038400 AND unix_time < 1429574400 THEN 'Year 0'
@@ -457,7 +456,7 @@ FROM
         FROM
             (SELECT reviewerID
             FROM AM_REVIEW NATURAL JOIN AM_Brand
-            WHERE 
+            WHERE
                 brand='Goya'
             ) r1,
             AM_REVIEW r2

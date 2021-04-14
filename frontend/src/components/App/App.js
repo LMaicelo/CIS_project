@@ -12,10 +12,13 @@ function App() {
       <Switch>
         <Route path="/" exact component={Home} />
         <Route path="/product-form" render={(props) => (
-          <InputForm {...props} products={true} />
+          <InputForm {...props} products={true} categories={false} brands={false}/>
         )} />
         <Route path="/category-form" render={(props) => (
-          <InputForm {...props} products={false} />
+          <InputForm {...props} products={false} categories={true} brands={false}/>
+        )} />
+        <Route path="/brand-form" render={(props) => (
+          <InputForm {...props} products={false} categories={false} brands={true}/>
         )} />
       </Switch>
     </Router>
