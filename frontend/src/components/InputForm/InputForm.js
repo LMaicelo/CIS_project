@@ -43,12 +43,44 @@ function InputForm(props) {
     event.preventDefault();
     setSubmitting(true);
     setSubmitted(true);
-    setTimeout(() => {
+    setTimeout(() => { // delete this
       setSubmitting(false);
       setFormData({
         reset: true
       })
-    }, 3000)
+    }, 3000);
+    if (event.queryType == "brandForRelatedProducts") {
+      executeQuery_brandForRelatedProducts(event.startTime, event.endTime, event.timeInterval, event.productAsin);
+    }
+    else {
+      // etc
+    }
+  }
+
+  async function executeQuery_brandForRelatedProducts(startTime, endTime, timeInterval, productAsin) {
+    let toReturn;
+    fetch(`http://localhost:9000/accessOracle/brandForRelatedProducts?startTime=${startTime}?endTime=${endTime}?timeInterval=${timeInterval}?productAsin=${productAsin}`)
+      .then(res => res.text())
+      .then((res) => {
+        //console.log("Response is: " + res);
+        this.setState({ fullChartData: res });
+        toReturn = res;
+        return res;
+      });
+    return toReturn;
+  }
+
+  async function getProductsLike(inputString) {
+    let toReturn;
+    fetch(`http://localhost:9000/accessOracle/getProductAsins?inputTitle=${encodeURIComponent(inputString)}`)
+    .then(res => res.text())
+    .then((res) => {
+      //console.log("Response is: " + res);
+      this.setState({ apiResponse: res });
+      toReturn = res;
+      return res;
+    });
+    return toReturn;
   }
 
   const handleChange = event => {
