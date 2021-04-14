@@ -247,7 +247,109 @@ function toChartData_bestBrandsToGetRelatedProducts(resultRows) {
     if (curDataset.data.length > 0)
         fullChartData.chartData.datasets.push(JSON.parse(JSON.stringify(curDataset)));
     
-    return JSON.parse(JSON.stringify(fullChartData));
+    return fullChartData;
+}
+
+function toChartData_getTimeDiffCategory(resultRows) {
+    let fullChartData = 
+    {
+        chartData: {
+            datasets: [],
+        },
+        chartOptions: {
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                      display: true,
+                      labelString: "Difference From Previous Time Period's Average Rating"
+                    }
+                  }],
+                xAxes: [{
+                    scaleLabel: {
+                      display: true,
+                      labelString: "Time"
+                    }
+                  }]
+            }
+        }
+    }
+
+    let curDataset = {
+        label: "brandName",// put brand title
+        showLine: true,
+        fill: false,
+        borderColor: 'rgb(255, 99, 132)',
+        data: [],
+        backgroundColor: 'rgb(255, 99, 132)'
+    }
+
+    let maxCount = 5;
+    let curIndex = 0;
+    let prevBrand = "";
+    resultRows.some((elem) => { // like forEach, but can be exited
+        if (curIndex == maxCount)
+            return true; // exit loop
+
+        let brand = elem[0];
+        let ti = elem[1]; // time interval; x value
+        let avgOverall = elem[2]; // y value
+        if (brand != prevBrand) {
+            prevBrand = brand;
+            if (curDataset.data.length > 0) {
+                fullChartData.chartData.datasets.push(JSON.parse(JSON.stringify(curDataset)));
+                curIndex += 1;
+            }
+            curDataset.label = brand;
+            curDataset.data = [];
+        }
+        curDataset.data.push({x: ti, y: avgOverall});
+    });
+    if (curDataset.data.length > 0)
+        fullChartData.chartData.datasets.push(JSON.parse(JSON.stringify(curDataset)));
+    
+    return fullChartData;
+}
+
+function toChartData_getRelativeRatingBrand(resultRows, brandName) {
+    let fullChartData = 
+    {
+        chartData: {
+            datasets: {
+                label: brandName,
+                showLine: true,
+                fill: false,
+                borderColor: 'rgb(255, 99, 132)',
+                data: [],
+                backgroundColor: 'rgb(255, 99, 132)'
+            },
+        },
+        chartOptions: {
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                      display: true,
+                      labelString: "Average 'Unbiased' Rating"
+                    }
+                  }],
+                xAxes: [{
+                    scaleLabel: {
+                      display: true,
+                      labelString: "Time"
+                    }
+                  }]
+            }
+        }
+    }
+
+    resultRows.some((elem) => { // like forEach, but can be exited
+
+        let ti = elem[0]; // time interval; x value
+        let avgOverall = elem[1]; // y value
+
+        fullChartData.chartData.datasets.data.push({x: ti, y: avgOverall});
+    });
+    
+    return fullChartData;
 }
 
 
@@ -260,6 +362,7 @@ function toChartData_bestBrandsToGetRelatedProducts(resultRows) {
 function generateCaseString(startTime, endTime, interval) {
     let returnStr = "";
     for (let i = startTime; i < endTime; i += interval) {
+        console.log("i is: " + i);
         returnStr += `WHEN unix_time >= ${i} AND unix_time < ${i + interval} THEN ${i}\n`;
     }
     return returnStr;
@@ -277,11 +380,46 @@ router.get("/", async function (req, res, next) {
 
 router.get("/brandForRelatedProducts", async function (req, res, next) {
     //res.send("API is working");
+    //let productAsin = 'B00PZ4YAD4';
+    let productAsin = req.query.productAsin;
+    let startTime = parseInt(req.query.startTime);
+    let endTime = parseInt(req.query.endTime);
+    let timeInterval = parseInt(req.query.timeInterval);
+    console.log("Query info: " + productAsin + " " + startTime + " " + endTime + " " + timeInterval);
 
-    let resultRows = await bestBrandsToGetRelatedProducts(1366502400, 1555718400, 31536000, 'B00PZ4YAD4');
+    let resultRows = await bestBrandsToGetRelatedProducts(startTime, endTime, timeInterval, productAsin);
     let fullChartData = toChartData_bestBrandsToGetRelatedProducts(resultRows);
     console.log(JSON.stringify(fullChartData, null, 4));
-    res.send(fullChartData);
+    res.send(JSON.stringify(fullChartData));
+});
+
+router.get("/getRelativeRatingBrand", async function (req, res, next) {
+    //res.send("API is working");
+    let brandName = req.query.brandName;
+    let startTime = parseInt(req.query.startTime);
+    let endTime = parseInt(req.query.endTime);
+    let timeInterval = parseInt(req.query.timeInterval);
+
+    //let resultRows = await getRelativeRatingBrand(1366502400, 1555718400, 31536000, brandName);
+    let resultRows = await getRelativeRatingBrand(startTime, endTime, timeInterval, brandName);
+    let fullChartData = toChartData_getRelativeRatingBrand(resultRows, brandName);
+    console.log(JSON.stringify(fullChartData, null, 4));
+    res.send(JSON.stringify(fullChartData));
+});
+
+router.get("/getTimeDiffCategory", async function (req, res, next) {
+    //res.send("API is working");
+    //let catName = 'Beans';
+    let catName = req.query.catName;
+    let startTime = parseInt(req.query.startTime);
+    let endTime = parseInt(req.query.endTime);
+    let timeInterval = parseInt(req.query.timeInterval);
+
+    //let resultRows = await getTimeDiffCategory(1366502400, 1555718400, 31536000, catName);
+    let resultRows = await getTimeDiffCategory(startTime, endTime, timeInterval, catName);
+    let fullChartData = toChartData_getTimeDiffCategory(resultRows);
+    console.log(JSON.stringify(fullChartData, null, 4));
+    res.send(JSON.stringify(fullChartData));
 });
 
 router.get("/getProductAsins", async function (req, res, next) {

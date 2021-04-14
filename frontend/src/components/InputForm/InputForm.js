@@ -59,10 +59,40 @@ function InputForm(props) {
 
   async function executeQuery_brandForRelatedProducts(startTime, endTime, timeInterval, productAsin) {
     let toReturn;
-    fetch(`http://localhost:9000/accessOracle/brandForRelatedProducts?startTime=${startTime}?endTime=${endTime}?timeInterval=${timeInterval}?productAsin=${productAsin}`)
+    fetch(`http://localhost:9000/accessOracle/brandForRelatedProducts?startTime=${startTime}&endTime=${endTime}&timeInterval=${timeInterval}&productAsin=${productAsin}`)
       .then(res => res.text())
       .then((res) => {
         //console.log("Response is: " + res);
+        console.log("Response is: " + JSON.stringify(JSON.parse(res).chartData));
+        console.log("Full val is: " + res);
+        this.setState({ fullChartData: res });
+        toReturn = res;
+        return res;
+      });
+    return toReturn;
+  }
+
+  async function executeQuery_getTimeDiffCategory(startTime, endTime, timeInterval, catName) {
+    let toReturn;
+    fetch(`http://localhost:9000/accessOracle/getTimeDiffCategory?startTime=${startTime}&endTime=${endTime}&timeInterval=${timeInterval}&catName=${catName}`)
+      .then(res => res.text())
+      .then((res) => {
+        //console.log("Response is: " + res);
+        console.log("Response is: " + JSON.stringify(JSON.parse(res).chartData));
+        this.setState({ fullChartData: res });
+        toReturn = res;
+        return res;
+      });
+    return toReturn;
+  }
+
+  async function executeQuery_getRelativeRatingBrand(startTime, endTime, timeInterval, brandName) {
+    let toReturn;
+    fetch(`http://localhost:9000/accessOracle/getRelativeRatingBrand?startTime=${startTime}&endTime=${endTime}&timeInterval=${timeInterval}&brandName=${brandName}`)
+      .then(res => res.text())
+      .then((res) => {
+        //console.log("Response is: " + res);
+        console.log("Response is: " + JSON.stringify(JSON.parse(res).chartData));
         this.setState({ fullChartData: res });
         toReturn = res;
         return res;
